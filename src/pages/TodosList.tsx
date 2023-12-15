@@ -1,33 +1,43 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { deleteTodo, updateTodo } from "../redux/mo/modules/todoSlice";
 
-export default function TodosList({
-  todos,
-  setTodos,
-  changedTodos,
-  listType,
-}: any) {
+export default function TodosList({ listType }: { listType: boolean }) {
   type T = { id: string; title: string; content: string; isDone: boolean };
+  const todos = useSelector((state: any) => state.todos);
+  const dispatch = useDispatch();
+
   const DeleteHandler = (id: string) => {
-    const fiteredTodos = todos.filter((todo: T) => {
-      return todo.id !== id;
-    });
+    // const fiteredTodos = todos.filter((todo: T) => {
+    //   return todo.id !== id;
+    // });
     const confirmedData = window.confirm("정말로 삭제할꺼에여?");
     if (confirmedData) {
-      setTodos(fiteredTodos);
+      // setTodos(fiteredTodos);
+      dispatch(deleteTodo(id));
     }
   };
   const UpdateHandler = (id: string) => {
-    const ChangedTodos = todos.map((todo: T) => {
-      if (id === todo.id) {
-        return { ...todo, isDone: !todo.isDone };
-      } else {
-        return todo;
-      }
-    });
-    setTodos(ChangedTodos);
+    // const ChangedTodos = todos.map((todo: T) => {
+    //   if (id === todo.id) {
+    //     return { ...todo, isDone: !todo.isDone };
+    //   } else {
+    //     return todo;
+    //   }
+    // });
+    // setTodos(ChangedTodos);
+    dispatch(updateTodo(id));
   };
 
+  const notYetTodos = todos.filter((todo: T) => {
+    return todo.isDone === false;
+  });
+  const completedTodos = todos.filter((todo: T) => {
+    return todo.isDone === true;
+  });
+
+  const changedTodos = listType ? completedTodos : notYetTodos;
   return (
     <>
       {" "}

@@ -1,37 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { nanoid } from "nanoid";
+import { useDispatch, useSelector } from "react-redux";
+import { setTodos } from "../redux/mo/modules/todoSlice";
 
-type props = {
-  todos: any;
-  formState: any;
-  setTodos: any;
-  initialForm: any;
-  setFormState: any;
-};
+export default function Nav() {
+  type T = { id: string; title: string; content: string; isDone: boolean };
+  const todos = useSelector((state: any) => state.todos);
+  const dipatch = useDispatch();
+  const initialForm = {
+    id: "",
+    title: "",
+    content: "",
+    isDone: false,
+  };
+  const [formState, setFormState] = useState<T>(initialForm);
 
-export default function Nav({
-  todos,
-  setTodos,
-  formState,
-  initialForm,
-  setFormState,
-}: props) {
   const OnchangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormState((prev: {}) => ({ ...prev, [name]: value }));
+    setFormState((prev: T) => ({ ...prev, [name]: value }));
   };
   const OnSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setTodos([
-      {
+    dipatch(
+      setTodos({
         id: nanoid(),
         title: formState.title,
         content: formState.content,
         isDone: false,
-      },
-      ...todos,
-    ]);
+      })
+    );
     setFormState(initialForm);
   };
 

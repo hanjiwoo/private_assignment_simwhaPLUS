@@ -1,52 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import styled from "styled-components";
 import Nav from "./pages/Nav";
 import TodosList from "./pages/TodosList";
 
 function App() {
-  // const [title, setTitle] = useState<string>("");
-  // const [content, setContent] = useState<string>("");
   type T = { id: string; title: string; content: string; isDone: boolean };
-  const [todos, setTodos] = useState<T[]>([]);
-  const initialForm = {
-    id: "",
-    title: "",
-    content: "",
-    isDone: false,
-  };
-  const [formState, setFormState] = useState<T>(initialForm);
+  // const [todos, setTodos] = useState<T[]>([]);
 
-  const notYetTodos = todos.filter((todo) => {
-    return todo.isDone === false;
-  });
-  const completedTodos = todos.filter((todo) => {
-    return todo.isDone === true;
-  });
+  console.log();
+
   return (
     <Container className="App">
       {" "}
       <Content>
         <ZeMOK>투두리스트</ZeMOK>
-        <Nav
-          todos={todos}
-          setTodos={setTodos}
-          formState={formState}
-          initialForm={initialForm}
-          setFormState={setFormState}
-        />
-        <TodosList
-          todos={todos}
-          setTodos={setTodos}
-          changedTodos={notYetTodos}
-          listType={false}
-        />
-        <TodosList
-          todos={todos}
-          setTodos={setTodos}
-          changedTodos={completedTodos}
-          listType={true}
-        />
+        <Nav />
+        <TodosList listType={false} />
+        <TodosList listType={true} />
       </Content>
     </Container>
   );
