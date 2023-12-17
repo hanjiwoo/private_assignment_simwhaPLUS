@@ -1,36 +1,38 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { setTodos } from "../redux/mo/modules/todoSlice";
-
-import axios from "axios";
-import { deleteTodos1, updateTodos1 } from "../tools/jsonTools";
+import {
+  __deleteTodo,
+  __editTodo,
+  __getTodos,
+} from "../redux/mo/modules/todoSlice";
+import { AppDispatch } from "../redux/mo/store/configstore";
 
 export default function TodosList({ listType }: { listType: boolean }) {
   type T = { id: string; title: string; content: string; isDone: boolean };
-  const todos = useSelector((state: any) => state.todos);
-  const dispatch = useDispatch();
+  const { todos, isLoading } = useSelector((state: any) => state.todos);
+  const dispatch = useDispatch<AppDispatch>();
   const JSON_SERVER_BASE_URL = "http://localhost:4000/todos";
-  const getTodos = async () => {
-    const { data } = await axios.get(JSON_SERVER_BASE_URL);
-    const { id, title, content, isDone } = data;
-    console.log("첫 데이터", data);
-    dispatch(setTodos(data));
-  };
+  // const getTodos = async () => {
+  //   const { data } = await axios.get(JSON_SERVER_BASE_URL);
+  //   const { id, title, content, isDone } = data;
+  //   console.log("첫 데이터", data);
+  //   dispatch(setTodos(data));
+  // };
   useEffect(() => {
-    getTodos();
-  }, []);
+    dispatch(__getTodos());
+  }, [dispatch]);
 
   const DeleteHandler = (id: string) => {
     const confirmedData = window.confirm("정말로 삭제할꺼에여?");
     if (confirmedData) {
-      deleteTodos1(id);
-      getTodos();
+      dispatch(__deleteTodo(id));
     }
   };
   const UpdateHandler = (id: string, isDone: boolean) => {
-    updateTodos1(id, isDone);
-    getTodos();
+    dispatch(__editTodo({ id, isDone }));
+    // updateTodos1(id, isDone);
+    // getTodos();
   };
 
   const notYetTodos = todos.filter((todo: T) => {
@@ -41,6 +43,11 @@ export default function TodosList({ listType }: { listType: boolean }) {
   });
 
   const changedTodos = listType ? completedTodos : notYetTodos;
+
+  if (isLoading) {
+    return <>로딩중....</>;
+  }
+
   return (
     <>
       {" "}

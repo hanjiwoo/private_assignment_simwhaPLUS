@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { setTodos } from "../redux/mo/modules/todoSlice";
-import { postTodos } from "../tools/jsonTools";
-import axios from "axios";
+import { __addTodo } from "../redux/mo/modules/todoSlice";
+import { nanoid } from "nanoid";
+import { AppDispatch } from "../redux/mo/store/configstore";
 
 export default function Nav() {
   type T = { id: string; title: string; content: string; isDone: boolean };
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const JSON_SERVER_BASE_URL = "http://localhost:4000/todos";
   const initialForm = {
     id: "",
@@ -22,18 +22,23 @@ export default function Nav() {
     setFormState((prev: T) => ({ ...prev, [name]: value }));
   };
   const OnSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    const newTodo = {
+      id: nanoid(),
+      title: formState.title,
+      content: formState.content,
+      isDone: false,
+    };
     e.preventDefault();
-    postTodos(formState);
-    getTodos();
     setFormState(initialForm);
+    dispatch(__addTodo(newTodo));
   };
 
-  const getTodos = async () => {
-    const { data } = await axios.get(JSON_SERVER_BASE_URL);
-    const { id, title, content, isDone } = data;
-    console.log("첫 데이터", data);
-    dispatch(setTodos(data));
-  };
+  // const getTodos = async () => {
+  //   const { data } = await axios.get(JSON_SERVER_BASE_URL);
+  //   const { id, title, content, isDone } = data;
+  //   console.log("첫 데이터", data);
+  //   dispatch(setTodos(data));
+  // };
 
   return (
     <Header onSubmit={OnSubmitHandler}>
