@@ -1,33 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { deleteTodo, updateTodo } from "../redux/mo/modules/todoSlice";
+import { setTodos } from "../redux/mo/modules/todoSlice";
+
+import axios from "axios";
+import { deleteTodos1, updateTodos1 } from "../tools/jsonTools";
 
 export default function TodosList({ listType }: { listType: boolean }) {
   type T = { id: string; title: string; content: string; isDone: boolean };
   const todos = useSelector((state: any) => state.todos);
   const dispatch = useDispatch();
+  const JSON_SERVER_BASE_URL = "http://localhost:4000/todos";
+  const getTodos = async () => {
+    const { data } = await axios.get(JSON_SERVER_BASE_URL);
+    const { id, title, content, isDone } = data;
+    console.log("첫 데이터", data);
+    dispatch(setTodos(data));
+  };
+  useEffect(() => {
+    getTodos();
+  }, []);
 
   const DeleteHandler = (id: string) => {
-    // const fiteredTodos = todos.filter((todo: T) => {
-    //   return todo.id !== id;
-    // });
     const confirmedData = window.confirm("정말로 삭제할꺼에여?");
     if (confirmedData) {
-      // setTodos(fiteredTodos);
-      dispatch(deleteTodo(id));
+      deleteTodos1(id);
+      getTodos();
     }
   };
-  const UpdateHandler = (id: string) => {
-    // const ChangedTodos = todos.map((todo: T) => {
-    //   if (id === todo.id) {
-    //     return { ...todo, isDone: !todo.isDone };
-    //   } else {
-    //     return todo;
-    //   }
-    // });
-    // setTodos(ChangedTodos);
-    dispatch(updateTodo(id));
+  const UpdateHandler = (id: string, isDone: boolean) => {
+    updateTodos1(id, isDone);
+    getTodos();
   };
 
   const notYetTodos = todos.filter((todo: T) => {
@@ -46,14 +49,14 @@ export default function TodosList({ listType }: { listType: boolean }) {
       </div>
       <Section1>
         <>
-          {changedTodos.map((todo: T) => {
+          {changedTodos?.map((todo: T) => {
             return (
               <ListWrapper key={todo.id}>
                 <div>아이디 : {todo.id}</div>
                 <div>제목 : {todo.title}</div>
                 <div>내용 : {todo.content}</div>
                 <div>상태 : {todo.isDone ? "완료" : "미완료"}</div>
-                <button onClick={() => UpdateHandler(todo.id)}>
+                <button onClick={() => UpdateHandler(todo.id, todo.isDone)}>
                   {listType ? "취소" : "완료"}
                 </button>
                 <button onClick={() => DeleteHandler(todo.id)}>삭제하기</button>

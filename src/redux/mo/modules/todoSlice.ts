@@ -9,29 +9,34 @@ const todoSlice = createSlice({
   initialState,
   reducers: {
     setTodos: (state, action) => {
-      const newtodo = action.payload;
-      return [newtodo, ...state];
+      return action.payload;
     },
-    deleteTodo: (state, action) => {
-      const id = action.payload;
-      const fiteredTodos = state.filter((todo: T) => {
-        return todo.id !== id;
-      });
-      return fiteredTodos;
-    },
-    updateTodo: (state, action) => {
-      const id = action.payload;
-      const ChangedTodos = state.map((todo: T) => {
-        if (id === todo.id) {
-          return { ...todo, isDone: !todo.isDone };
-        } else {
-          return todo;
-        }
-      });
-      return ChangedTodos;
-    },
+
+    // addTodos: (state, action) => {
+    //   const newtodo = action.payload;
+    //   return [newtodo, ...state];
+    // },
+    // deleteTodo: (state, action) => {
+    //   const id = action.payload;
+    //   const fiteredTodos = state.filter((todo: T) => {
+    //     return todo.id !== id;
+    //   });
+    //   return fiteredTodos;
+    // },
+    // updateTodo: (state, action) => {
+    //   const id = action.payload;
+    //   const ChangedTodos = state.map((todo: T) => {
+    //     if (id === todo.id) {
+    //       return { ...todo, isDone: !todo.isDone };
+    //     } else {
+    //       return todo;
+    //     }
+    //   });
+    //   return ChangedTodos;
+    // },
   },
 });
 
 export default todoSlice.reducer;
-export const { setTodos, deleteTodo, updateTodo } = todoSlice.actions;
+export const { /*addTodos, deleteTodo, updateTodo,*/ setTodos } =
+  todoSlice.actions;
