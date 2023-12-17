@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
-import { __addTodo } from "../redux/mo/modules/todoSlice";
+// import { __addTodo } from "../redux/mo/modules/todoSlice";
 import { nanoid } from "nanoid";
-import { AppDispatch } from "../redux/mo/store/configstore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addTodos } from "../redux/mo/modules/queryFns";
 
 export default function Nav() {
   type T = { id: string; title: string; content: string; isDone: boolean };
-  const dispatch = useDispatch<AppDispatch>();
   const JSON_SERVER_BASE_URL = "http://localhost:4000/todos";
   const initialForm = {
     id: "",
@@ -16,6 +15,14 @@ export default function Nav() {
     isDone: false,
   };
   const [formState, setFormState] = useState<T>(initialForm);
+
+  const queryClient = useQueryClient();
+  const { mutate: mutateToAdd } = useMutation({
+    mutationFn: addTodos,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
 
   const OnchangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,16 +36,10 @@ export default function Nav() {
       isDone: false,
     };
     e.preventDefault();
-    setFormState(initialForm);
-    dispatch(__addTodo(newTodo));
-  };
 
-  // const getTodos = async () => {
-  //   const { data } = await axios.get(JSON_SERVER_BASE_URL);
-  //   const { id, title, content, isDone } = data;
-  //   console.log("첫 데이터", data);
-  //   dispatch(setTodos(data));
-  // };
+    mutateToAdd(newTodo);
+    setFormState(initialForm);
+  };
 
   return (
     <Header onSubmit={OnSubmitHandler}>

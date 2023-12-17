@@ -1,44 +1,50 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 import styled from "styled-components";
-import {
-  __deleteTodo,
-  __editTodo,
-  __getTodos,
-} from "../redux/mo/modules/todoSlice";
-import { AppDispatch } from "../redux/mo/store/configstore";
+// import {
+//   __deleteTodo,
+//   __editTodo,
+//   __getTodos,
+// } from "../redux/mo/modules/todoSlice";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteTodo, editTodo, getTodos } from "../redux/mo/modules/queryFns";
 
 export default function TodosList({ listType }: { listType: boolean }) {
   type T = { id: string; title: string; content: string; isDone: boolean };
-  const { todos, isLoading } = useSelector((state: any) => state.todos);
-  const dispatch = useDispatch<AppDispatch>();
+
   const JSON_SERVER_BASE_URL = "http://localhost:4000/todos";
-  // const getTodos = async () => {
-  //   const { data } = await axios.get(JSON_SERVER_BASE_URL);
-  //   const { id, title, content, isDone } = data;
-  //   console.log("첫 데이터", data);
-  //   dispatch(setTodos(data));
-  // };
-  useEffect(() => {
-    dispatch(__getTodos());
-  }, [dispatch]);
+
+  const { data: todos, isLoading } = useQuery({
+    queryKey: ["todos"],
+    queryFn: getTodos,
+  });
+  const queryClient = useQueryClient();
+  const { mutate: mutateToDelete } = useMutation({
+    mutationFn: deleteTodo,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+  const { mutate: mutateToEdit } = useMutation({
+    mutationFn: editTodo,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
 
   const DeleteHandler = (id: string) => {
     const confirmedData = window.confirm("정말로 삭제할꺼에여?");
     if (confirmedData) {
-      dispatch(__deleteTodo(id));
+      mutateToDelete(id);
     }
   };
   const UpdateHandler = (id: string, isDone: boolean) => {
-    dispatch(__editTodo({ id, isDone }));
-    // updateTodos1(id, isDone);
-    // getTodos();
+    mutateToEdit({ id, isDone });
   };
 
-  const notYetTodos = todos.filter((todo: T) => {
+  const notYetTodos = todos?.filter((todo: T) => {
     return todo.isDone === false;
   });
-  const completedTodos = todos.filter((todo: T) => {
+  const completedTodos = todos?.filter((todo: T) => {
     return todo.isDone === true;
   });
 
